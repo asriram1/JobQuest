@@ -1,0 +1,13 @@
+1. Homepage displays top 5 most recent jobs
+2. When search jobs clicked -> nav to all jobs page, which displays all job. Have filters for displaying certain companies. Job Types, Date posted.
+3. Each job if clicked has apply url 
+4. Apply page inputs user resume, current job, name, email & phone. 
+5. Have a link to applied jobs.
+6. Post a job page, allows for posting jobs.
+7. Have a page for posted jobs. 
+8. Have a favorites page. 
+9. Have a dropdown when name clicked of different pages.
+10. Make all pages (except all jobs page) need for authentication to access.
+11. Button at bottom of page - view all jobs. 
+
+
