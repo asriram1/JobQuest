@@ -1,4 +1,8 @@
 export default function getCompanies() {
+  type Props = {
+    value: String;
+    label: String;
+  };
   const companies = `3Com Corp
     3M Company
     A.G. Edwards Inc.
@@ -27,6 +31,7 @@ export default function getCompanies() {
     Agway Inc.
     Apartment Investment and Management Company
     Air Products and Chemicals, Inc.
+    AirBnB, Inc.
     Airborne, Inc.
     Airgas, Inc.
     AK Steel Holding Corporation
@@ -42,6 +47,7 @@ export default function getCompanies() {
     Alliant Energy Corporation
     Allied Waste Industries, Inc.
     Allmerica Financial Corporation
+    Alphabet, Inc.
     The Allstate Corporation
     ALLTEL Corporation
     The Alpine Group, Inc.
@@ -546,6 +552,7 @@ export default function getCompanies() {
     Merck & Co., Inc.
     Mercury General Corporation
     Merrill Lynch & Co. Inc.
+    Meta
     Metaldyne Corporation
     Metals USA Inc.
     MetLife Inc.
@@ -578,6 +585,7 @@ export default function getCompanies() {
     Navistar International Corporation
     NCR Corporation
     The Neiman Marcus Group Inc.
+    Netflix
     New Jersey Resources Corporation
     New York Times Company
     Newell Rubbermaid Inc
@@ -618,6 +626,7 @@ export default function getCompanies() {
     ONEOK Inc
     Oracle Corp
     Oshkosh Truck Corp
+    Other
     Outback Steakhouse Inc.
     Owens & Minor Inc.
     Owens Corning
@@ -947,5 +956,11 @@ export default function getCompanies() {
     Zale Corporation
     Zions Bancorporation`;
   const newCompanies = companies.split(/\r?\n/);
-  return newCompanies;
+  const options: Props[] = [];
+  newCompanies.forEach((company) => {
+    const option = { value: company.trim(), label: company.trim() };
+    options.push(option);
+  });
+
+  return options;
 }

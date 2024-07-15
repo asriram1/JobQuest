@@ -20,6 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <main className="container mx-auto py-4 px-6">
+          <Header />
           {children}
           <footer className="text-center text-gray-400 mt-4">
             &copy; JobQuest 2024
