@@ -45,6 +45,7 @@ import { getSessionUser } from "@/app/_components/Header";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToHtml from "draftjs-to-html";
+import { useRouter } from "next/navigation";
 
 export default function NewListing() {
   const companies = getCompanies();
@@ -68,11 +69,12 @@ export default function NewListing() {
   const [companyIcon, setCompanyIcon] = useState<string>("");
   const [recruiterImage, setRecruiterImage] = useState<string>("");
   const [content, setContent] = useState();
+  const router = useRouter();
 
-  const Editor = dynamic<EditorProps>(
-    () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
-    { ssr: false }
-  );
+  // const Editor = dynamic<EditorProps>(
+  //   () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
+  //   { ssr: false }
+  // );
 
   useEffect(() => {
     if (company == "Other") {
@@ -107,7 +109,7 @@ export default function NewListing() {
       console.log(data);
       axios.post("/api/ad", data).then((data: any) => {
         console.log(data);
-        redirect("/listing/" + data._id);
+        router.push("/listing/" + data.data._id);
       });
       // return data;
     });
@@ -132,6 +134,7 @@ export default function NewListing() {
               onChange={(ev) => {
                 setTitle(ev.target?.value);
               }}
+              style={{ fontSize: "14px" }}
               placeholder="Job Title..."
             ></TextField.Root>
           </div>
@@ -148,6 +151,7 @@ export default function NewListing() {
                 option: (provided) => ({
                   ...provided,
                   color: "#80838D",
+                  fontSize: "14px",
                 }),
                 control: (provided) => ({
                   ...provided,
@@ -156,10 +160,12 @@ export default function NewListing() {
                 singleValue: (provided) => ({
                   ...provided,
                   color: "#80838D",
+                  fontSize: "14px",
                 }),
                 placeholder: (provided) => ({
                   ...provided,
                   color: "#80838D",
+                  fontSize: "14px",
                 }),
               }}
             />
@@ -171,6 +177,7 @@ export default function NewListing() {
                 onChange={(ev) => {
                   setOtherCompany(ev.target?.value);
                 }}
+                style={{ fontSize: "14px" }}
                 placeholder="Enter Other Company Name..."
               ></TextField.Root>
             </div>
@@ -240,6 +247,7 @@ export default function NewListing() {
                 onChange={(ev) => {
                   setSalary(Number(ev.target?.value));
                 }}
+                style={{ fontSize: "14px" }}
                 placeholder="Amount"
               >
                 <TextField.Slot>$</TextField.Slot>
@@ -252,6 +260,7 @@ export default function NewListing() {
             <div className="flex justify-between :w-1/4">
               <div className="w-[30%]">
                 <CountrySelect
+                  inputClassName="focus:border-none text-sm"
                   onChange={(e: any) => {
                     setCountry(e.name);
                     setCountryId(e.id);
@@ -262,6 +271,7 @@ export default function NewListing() {
               <div className="w-[30%]">
                 <StateSelect
                   countryid={countryId}
+                  inputClassName="focus:border-none text-sm"
                   onChange={(e: any) => {
                     setState(e.name);
                     setStateId(e.id);
@@ -273,6 +283,7 @@ export default function NewListing() {
                 <CitySelect
                   countryid={countryId}
                   stateid={stateId}
+                  inputClassName="focus:border-none text-sm"
                   onChange={(e: any) => {
                     setCity(e.name);
                     setCityId(e.id);
