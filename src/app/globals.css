@@ -5,3 +5,33 @@
 body {
   @apply text-black;
 }
+
+.wrapper {
+  /* border: 1px solid grey; */
+}
+
+.editor {
+  /* background-color: lavender; */
+  border: 1px solid #cdced6;
+  height: 200px;
+  border-radius: 6px;
+}
+
+.toolbar {
+  border: 1px solid #cdced6;
+  border-radius: 6px;
+}
+
+ul {
+  /* font-size: 14px; */
+
+  list-style-type: circle;
+}
+
+li {
+  margin-left: 10px;
+}
+
+ol {
+  list-style-type: decimal;
+}

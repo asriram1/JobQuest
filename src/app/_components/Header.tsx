@@ -1,3 +1,4 @@
+"use server";
 import Link from "next/link";
 import React from "react";
 import {
@@ -6,6 +7,13 @@ import {
   getUser,
   signOut,
 } from "@workos-inc/authkit-nextjs";
+import { Avatar } from "@radix-ui/themes";
+
+export async function getSessionUser() {
+  const { user } = await getUser();
+
+  return user;
+}
 
 export default async function Header() {
   // Retrieves the user from the session or returns `null` if no user is signed in
@@ -27,6 +35,7 @@ export default async function Header() {
         <nav className="flex gap-2 *:px-4 *:py-2 *:rounded-md">
           {!user ? (
             <>
+            
               <Link className="bg-blue-600 text-white" href={signInUrl}>
                 Login
               </Link>

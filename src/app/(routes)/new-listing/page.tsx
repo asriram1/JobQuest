@@ -17,6 +17,7 @@ import {
   TextField,
   TextArea,
   Heading,
+  ScrollArea,
 } from "@radix-ui/themes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -29,11 +30,21 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import PhotoUpload from "@/app/_components/PhotoUpload";
+import { convertFromRaw } from "draft-js";
+import dynamic from "next/dynamic";
+import { EditorProps } from "react-draft-wysiwyg";
 
 type Prop = {
   value: String;
   label: String;
 };
+import axios from "axios";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/app/_components/Header";
+
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import draftToHtml from "draftjs-to-html";
 
 export default function NewListing() {
   const companies = getCompanies();
@@ -44,26 +55,24 @@ export default function NewListing() {
   const [stateId, setStateId] = useState<number>(0);
   const [cityId, setCityId] = useState<number>(0);
   const [title, setTitle] = useState<String>("");
-  // const [company, setCompany] = useState<Prop>({
-  //   value: "",
-  //   label: "",
-  // });
   const [company, setCompany] = useState<String>("");
   const [otherCompany, setOtherCompany] = useState<String>("");
   const [remote, setRemote] = useState<String>("On-Site");
   const [hours, setHours] = useState<String>("Full-Time");
   const [salary, setSalary] = useState<number>(0);
-  const [icon, setIcon] = useState<String>("");
-  const [contactPhoto, setContactPhoto] = useState<String>("");
-  const [contactName, setContactName] = useState<String>("");
-  const [contactPhone, setContactPhone] = useState<String>("");
-  const [contactEmail, setContactEmail] = useState<String>("");
-  const [description, setDescription] = useState<String>("");
+  const [recruiterName, setRecruiterName] = useState<String>("");
+  const [recruiterPhone, setRecruiterPhone] = useState<String>("");
+  const [recruiterEmail, setRecruiterEmail] = useState<String>("");
+  const [description, setDescription] = useState<any>();
   const [extraCompany, setExtraCompany] = useState<boolean>(false);
   const [companyIcon, setCompanyIcon] = useState<string>("");
   const [recruiterImage, setRecruiterImage] = useState<string>("");
+  const [content, setContent] = useState();
 
-  const fileInRef = useRef<HTMLInputElement>(null);
+  const Editor = dynamic<EditorProps>(
+    () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
+    { ssr: false }
+  );
 
   useEffect(() => {
     if (company == "Other") {
@@ -73,30 +82,47 @@ export default function NewListing() {
     }
   }, [company]);
 
-  // const [onSite, setOnSite] = useState<boolean>(false);
-  // const [remote, setRemote] = useState<boolean>(false);
-  // const [hybrid, setHybrid] = useState<boolean>(false);
+  async function handleSubmit(ev) {
+    ev.preventDefault();
+    getSessionUser().then((user) => {
+      console.log(user);
+      const data = {
+        title,
+        company,
+        otherCompany,
+        remote,
+        hours,
+        salary,
+        country,
+        state,
+        city,
+        companyIcon,
+        recruiterImage,
+        recruiterName,
+        recruiterPhone,
+        recruiterEmail,
+        description,
+        userId: user?.id,
+      };
+      console.log(data);
+      axios.post("/api/ad", data).then((data: any) => {
+        console.log(data);
+        redirect("/listing/" + data._id);
+      });
+      // return data;
+    });
+  }
 
-  // function toggleRemote(name: String) {
-  //   if (name === "On-Site") {
-  //     setOnSite(true);
-  //     setRemote(false);
-  //     setHybrid(false);
-  //   }
-  //   if (name === "Remote") {
-  //     setOnSite(false);
-  //     setRemote(true);
-  //     setHybrid(false);
-  //   }
-  //   if (name === "Hybrid") {
-  //     setOnSite(false);
-  //     setRemote(false);
-  //     setHybrid(true);
-  //   }
-  // }
+  function handleContentChange(content) {
+    setContent(content);
+    console.log(content);
+    console.log(draftToHtml(content));
+    // const contentForDb = convertFromRaw(content);
+    setDescription(content);
+  }
 
   return (
-    <form>
+    <form onSubmit={(ev) => handleSubmit(ev)}>
       <Theme>
         <div className="flex flex-col gap-5 mt-10 ">
           <Heading>New Job</Heading>
@@ -108,11 +134,6 @@ export default function NewListing() {
               }}
               placeholder="Job Title..."
             ></TextField.Root>
-            {/* <input
-              type="text"
-              className="border w-full px-4 py-2 rounded-md"
-              placeholder="Job Title"
-            /> */}
           </div>
           <div>
             <Select
@@ -156,31 +177,61 @@ export default function NewListing() {
           )}
           <div className="flex justify-between">
             <div>
-              <label>Remote</label>
-              <RadioGroup.Root
-                defaultValue="On-Site"
-                name="Remote"
-                onChange={(ev) => {
-                  setRemote((ev.target as HTMLInputElement).value);
-                }}
-              >
-                <RadioGroup.Item value="On-Site">On-Site</RadioGroup.Item>
-                <RadioGroup.Item value="Hybrid">Hybrid</RadioGroup.Item>
-                <RadioGroup.Item value="Remote">Remote</RadioGroup.Item>
+              <label>Work Style</label>
+              <RadioGroup.Root>
+                <RadioGroup.Item
+                  onClick={(ev) => {
+                    setRemote((ev.target as HTMLInputElement).value);
+                  }}
+                  value="On-Site"
+                >
+                  On-Site
+                </RadioGroup.Item>
+                <RadioGroup.Item
+                  onClick={(ev) => {
+                    setRemote((ev.target as HTMLInputElement).value);
+                  }}
+                  value="Hybrid"
+                >
+                  Hybrid
+                </RadioGroup.Item>
+                <RadioGroup.Item
+                  onClick={(ev) => {
+                    setRemote((ev.target as HTMLInputElement).value);
+                  }}
+                  value="Remote"
+                >
+                  Remote
+                </RadioGroup.Item>
               </RadioGroup.Root>
             </div>
             <div>
               <label>Work Hours</label>
-              <RadioGroup.Root
-                defaultValue="Full-Time"
-                name="Hours"
-                onChange={(ev) => {
-                  setHours((ev.target as HTMLInputElement).value);
-                }}
-              >
-                <RadioGroup.Item value="Full-Time">Full-Time</RadioGroup.Item>
-                <RadioGroup.Item value="Part-Time">Part-Time</RadioGroup.Item>
-                <RadioGroup.Item value="Contract">Contract</RadioGroup.Item>
+              <RadioGroup.Root>
+                <RadioGroup.Item
+                  onClick={(ev) => {
+                    setHours((ev.target as HTMLInputElement).value);
+                  }}
+                  value="Full-Time"
+                >
+                  Full-Time
+                </RadioGroup.Item>
+                <RadioGroup.Item
+                  onClick={(ev) => {
+                    setHours((ev.target as HTMLInputElement).value);
+                  }}
+                  value="Part-Time"
+                >
+                  Part-Time
+                </RadioGroup.Item>
+                <RadioGroup.Item
+                  onClick={(ev) => {
+                    setHours((ev.target as HTMLInputElement).value);
+                  }}
+                  value="Contract"
+                >
+                  Contract
+                </RadioGroup.Item>
               </RadioGroup.Root>
             </div>
             <div className="w-[30%]">
@@ -194,7 +245,6 @@ export default function NewListing() {
                 <TextField.Slot>$</TextField.Slot>
                 <TextField.Slot>k/year</TextField.Slot>
               </TextField.Root>
-              {/* <input type="text" className="border" placeholder="Salary" /> */}
             </div>
           </div>
           <div>
@@ -234,38 +284,13 @@ export default function NewListing() {
           </div>
 
           <PhotoUpload setImage={setCompanyIcon} label={"Company Icon"} />
-
-          {/* <div>
-            <label>Company Icon</label>
-            <div className="flex flex-col gap-2">
-              <div className="bg-gray-300 h-32 w-32 flex items-center justify-center">
-                <FontAwesomeIcon
-                  icon={faBuilding}
-                  className="size-10 text-gray-500"
-                />
-              </div>
-              <PhotoUpload />
-            </div>
-          </div> */}
           <div className="flex gap-2">
             <PhotoUpload setImage={setRecruiterImage} label={"Job Recruiter"} />
-            {/* <div>
-              <label>Job Contact</label>
-              <div className="flex flex-col gap-2">
-                <div className="bg-gray-300 h-32 w-32 flex items-center justify-center">
-                  <FontAwesomeIcon
-                    icon={faAddressBook}
-                    className="size-10 text-gray-500"
-                  />
-                </div>
-                <PhotoUpload />
-              </div>
-            </div> */}
             <div className="flex flex-col gap-2 mt-6 grow">
               <div>
                 <TextField.Root
                   onChange={(ev) => {
-                    setContactName(ev.target?.value);
+                    setRecruiterName(ev.target?.value);
                   }}
                   placeholder="John Doe"
                 >
@@ -277,7 +302,7 @@ export default function NewListing() {
               <div>
                 <TextField.Root
                   onChange={(ev) => {
-                    setContactPhone(ev.target?.value);
+                    setRecruiterPhone(ev.target?.value);
                   }}
                   placeholder="(774)-223-2246"
                 >
@@ -289,7 +314,7 @@ export default function NewListing() {
               <div>
                 <TextField.Root
                   onChange={(ev) => {
-                    setContactEmail(ev.target?.value);
+                    setRecruiterEmail(ev.target?.value);
                   }}
                   placeholder="johndoe@email.com"
                 >
@@ -303,25 +328,23 @@ export default function NewListing() {
               </div>
             </div>
           </div>
-          {/* <div className="flex flex-col gap-2 mb-2">
-            <label>Application Link</label>
-            <TextField.Root placeholder="https://www.amazon.jobs/en/jobId/122322">
-              <TextField.Slot>
-                <FontAwesomeIcon icon={faLink} className="text-gray-500" />
-              </TextField.Slot>
-            </TextField.Root>
-          </div> */}
 
           <div className="flex flex-col gap-2 mb-2">
             <label>Job Description</label>
-            <TextArea
+            <Editor
+              wrapperClassName="wrapper"
+              editorClassName="editor"
+              toolbarClassName="toolbar"
+              onContentStateChange={handleContentChange}
+            />
+            {/* <TextArea
               onChange={(ev) => {
                 setDescription(ev.target?.value);
               }}
               size="3"
               resize="vertical"
               placeholder="Minimum Qualifications..."
-            />
+            /> */}
           </div>
         </div>
         <button

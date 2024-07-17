@@ -9,5 +9,13 @@
 9. Have a dropdown when name clicked of different pages.
 10. Make all pages (except all jobs page) need for authentication to access.
 11. Button at bottom of page - view all jobs. 
+12. Filter based on Organization.
+
+13. Add double click to edit functionality - https://stackoverflow.com/questions/62748074/how-do-i-add-the-ability-to-edit-text-within-a-react-component
+
+14. Edge case for other company in edit job page
+
+
+
 
 

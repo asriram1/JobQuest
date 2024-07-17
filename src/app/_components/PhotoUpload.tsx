@@ -11,6 +11,8 @@ import {
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import DataURIParser from "datauri/parser";
+import upload from "../_libs/upload";
+import reactSelect from "react-select";
 
 type Props = {
   label: string;
@@ -26,7 +28,6 @@ export default function PhotoUpload({ label, setImage }: Props) {
   function readFileDataAsBase64(e) {
     const file = e.target.files[0];
     const reader = new FileReader();
-    // return reader.readAsDataURL(file);
 
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -43,48 +44,18 @@ export default function PhotoUpload({ label, setImage }: Props) {
     });
   }
 
-  async function upload(ev: any) {
-    // const file = ev.target.files[0];
+  async function uploadCaller(ev) {
     setLoading(true);
     const reader = (await readFileDataAsBase64(ev)) as string;
-    console.log(reader);
-    if (reader) {
-      cloudinary.config({
-        cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_API_KEY,
-        api_secret: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_API_SECRET, // Click 'View Credentials' below to copy your API secret
-      });
-      const uploadResult: any = await cloudinary.uploader
-        .upload(reader, {
-          public_id: label + new Date().valueOf().toString(),
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      console.log(uploadResult);
-      setFile(true);
-      setLink(uploadResult.secure_url);
-      setImage(uploadResult.secure_url);
-      setLoading(false);
-    }
 
-    // Optimize delivery by resizing and applying auto-format and auto-quality
-    // const optimizeUrl = cloudinary.url(label, {
-    //   fetch_format: "auto",
-    //   quality: "auto",
-    // });
-
-    // console.log(optimizeUrl);
-
-    // Transform the image: auto-crop to square aspect_ratio
-    // const autoCropUrl = cloudinary.url(label, {
-    //   crop: "auto",
-    //   gravity: "auto",
-    //   width: 500,
-    //   height: 500,
-    // });
-
-    // console.log(autoCropUrl);
+    upload({ reader, label }).then((result) => {
+      setTimeout(() => {
+        setFile(true);
+        setLink(result.secure_url);
+        setImage(result.secure_url);
+        setLoading(false);
+      }, 3000);
+    });
   }
 
   return (
@@ -123,20 +94,10 @@ export default function PhotoUpload({ label, setImage }: Props) {
         </div>
 
         <div className="w-32">
-          {/* <CldImage
-            src="" // Use this sample image or upload your own via the Media Explorer
-            width="500" // Transform the image: auto-crop to square aspect_ratio
-            height="500"
-            alt="uploaded photo"
-            crop={{
-              type: "auto",
-              source: true,
-            }}
-          /> */}
           <input
             type="file"
             onChange={(ev) => {
-              ev.target.files && upload(ev);
+              ev.target.files && uploadCaller(ev);
             }}
             ref={fileInRef}
             className="hidden"
