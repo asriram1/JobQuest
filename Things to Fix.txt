@@ -15,6 +15,7 @@
 
 14. Edge case for other company in edit job page
 
+15. Make all useeffects into one. Just ensure to clear searchparmas if newrefresh. 
 
 
 

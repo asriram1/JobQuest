@@ -37,7 +37,9 @@
     "react-dom": "^18",
     "react-draft-wysiwyg": "^1.15.0",
     "react-draft-wysiwyg-a": "^1.14.5-1",
-    "react-select": "^5.8.0"
+    "react-select": "^5.8.0",
+    "react-timeago": "^7.2.0",
+    "use-debounce": "^10.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",

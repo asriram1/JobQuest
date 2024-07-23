@@ -18,6 +18,7 @@ export type Ad = {
   recruiterEmail: string;
   description: any;
   userId: string;
+  createdAt: string;
 };
 
 const adSchema = new Schema<Ad>(

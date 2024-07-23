@@ -15,6 +15,16 @@ import DOMPurify from "isomorphic-dompurify";
 import { getSessionUser } from "@/app/_components/Header";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
+import Apply from "@/app/_components/Apply";
+
+import {
+  getSignInUrl,
+  getSignUpUrl,
+  getUser,
+  signOut,
+} from "@workos-inc/authkit-nextjs";
+import loginLink from "../../authentication/page";
+import { usePathname } from "next/navigation";
 
 type Props = {
   params: {
@@ -40,10 +50,13 @@ export default function ListingIdPage(args: Props) {
   const [extraCompany, setExtraCompany] = useState<boolean>(false);
   const [companyIcon, setCompanyIcon] = useState<string>("");
   const [recruiterImage, setRecruiterImage] = useState<string>("");
-  const [loggedUserId, setLoggedUserId] = useState<string | undefined>();
+  const [loggedUserId, setLoggedUserId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>("");
   const [editor, setEditor] = useState<boolean>(false);
   const router = useRouter();
+
+  // const [pathname, setPathname] = useState<string>("");
+  const pathname = usePathname();
 
   useEffect(() => {
     axios.get("/api/ad", { params: { id: args.params.id } }).then((res) => {
@@ -72,7 +85,7 @@ export default function ListingIdPage(args: Props) {
         console.log(user?.id);
         console.log(data.userId);
         setLoggedUserId(user?.id);
-        if (data.userId == loggedUserId) {
+        if (user?.id != undefined && data.userId == loggedUserId) {
           setEditor(true);
         }
       });
@@ -89,6 +102,11 @@ export default function ListingIdPage(args: Props) {
     router.push("/listing/edit/" + args.params.id);
   }
 
+  async function signingIn() {
+    const signInUrl = await loginLink();
+
+    return signInUrl;
+  }
   return (
     <Theme>
       <div className="flex flex-col gap-10 mt-10">
@@ -191,12 +209,57 @@ export default function ListingIdPage(args: Props) {
           </div>
         </div>
 
-        <div className="flex w-full">
-          {userId !== loggedUserId ? (
+        {/* {loggedUserId ? (
+          <div>
+            <Apply />
+          </div>
+        ) : (
+          <div>
             <button className="bg-blue-600 text-white px-4 py-2 w-full rounded-md mx-auto">
-              Apply Now
+              Login to Apply
             </button>
+          </div>
+        )} */}
+        <div className="flex w-full">
+          {!editor ? (
+            <>
+              {" "}
+              {loggedUserId ? (
+                <div className="w-full">
+                  <Apply />
+                </div>
+              ) : (
+                <div className="w-full">
+                  <button
+                    onClick={() => {
+                      signingIn().then((result) => {
+                        console.log(result);
+
+                        console.log(pathname);
+                        console.log(
+                          result.replace(
+                            /redirect_uri.*response_type=/,
+                            "redirect_uri=http://localhost:3000" +
+                              pathname +
+                              "&response_type="
+                          )
+                        );
+
+                        router.push(
+                          "https://api.workos.com/user_management/authorize?client_id=client_01J2PP9HHD4B9HFJR4ZF82DRKX&provider=authkit&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Flisting%2F669674c4576f4b0f5f354c6c&response_type=code&screen_hint=sign-in"
+                        );
+                      });
+                    }}
+                    className="bg-blue-600 text-white px-4 py-2 w-full rounded-md mx-auto"
+                  >
+                    Login to Apply
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
+            // <Apply /> https://api.workos.com/user_management/authorize?client_id=client_01J2PP9HHD4B9HFJR4ZF82DRKX&provider=authkit&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fcallback&response_type=code&screen_hint=sign-in
+            // https://api.workos.com/user_management/authorize?client_id=client_01J2PP9HHD4B9HFJR4ZF82DRKX&provider=authkit&redirect_uri=http://localhost:3000/listing/669674c4576f4b0f5f354c6c&response_type=code&screen_hint=sign-in
             <>
               <div className="flex gap-2 w-full">
                 <button
