@@ -27,7 +27,7 @@ export default function Hero() {
         </p>
         <p className="text-2xl text-center">
           <span className="font-bold text-blue-600">Search for a job now </span>{" "}
-          and let's build your future together.
+          and let&apos;s build your future together.
         </p>
       </div>
       <form className="mt-5 flex flex-col items-center max-w-xl mx-auto">

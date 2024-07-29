@@ -7,8 +7,8 @@ import {
   signOut,
 } from "@workos-inc/authkit-nextjs";
 
-export async function loginLink() {
-  const signInUrl = await getSignInUrl();
+export async function loginLink(): Promise<string> {
+  const signInUrl: string = await getSignInUrl();
   return signInUrl;
 }
 export async function getSessionUser() {
@@ -17,8 +17,8 @@ export async function getSessionUser() {
   return user;
 }
 
-export async function signUpLink() {
-  const signUpUrl = await getSignUpUrl();
+export async function signUpLink(): Promise<string> {
+  const signUpUrl: string = await getSignUpUrl();
   return signUpUrl;
 }
 

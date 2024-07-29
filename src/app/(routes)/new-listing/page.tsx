@@ -42,11 +42,16 @@ import axios from "axios";
 import { redirect } from "next/navigation";
 // import { getSessionUser } from "@/app/_components/Header";
 
-import { Editor } from "react-draft-wysiwyg";
+// import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToHtml from "draftjs-to-html";
 import { useRouter } from "next/navigation";
 import { getSessionUser } from "../authentication/page";
+
+const Editor = dynamic<EditorProps>(
+  () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
+  { ssr: false }
+);
 
 export default function NewListing() {
   const companies = getCompanies();
@@ -73,11 +78,6 @@ export default function NewListing() {
   const [loading, setLoading] = useState<boolean>(false);
   const [content, setContent] = useState();
   const router = useRouter();
-
-  // const Editor = dynamic<EditorProps>(
-  //   () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
-  //   { ssr: false }
-  // );
 
   useEffect(() => {
     if (company == "Other") {
@@ -121,11 +121,13 @@ export default function NewListing() {
   }
 
   function handleContentChange(content) {
+    // if (typeof window !== "undefined") {
     setContent(content);
-    console.log(content);
-    console.log(draftToHtml(content));
+    // console.log(content);
+    // console.log(draftToHtml(content));
     // const contentForDb = convertFromRaw(content);
     setDescription(content);
+    // }
   }
 
   return (

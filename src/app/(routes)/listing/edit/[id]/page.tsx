@@ -21,7 +21,7 @@ import DOMPurify from "isomorphic-dompurify";
 import { renderToStaticMarkup } from "react-dom/server";
 // import Html2ReactParser from "html-to-react/types/parser";
 const HtmlToReactParser = require("html-to-react").Parser;
-import { Editor } from "react-draft-wysiwyg";
+// import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -54,6 +54,11 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { EditorProps } from "react-draft-wysiwyg";
 import { getSessionUser } from "@/app/(routes)/authentication/page";
+
+const Editor = dynamic<EditorProps>(
+  () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
+  { ssr: false }
+);
 
 export default function EditListingIdPage(args: Props) {
   const companies = getCompanies();
@@ -96,11 +101,6 @@ export default function EditListingIdPage(args: Props) {
 
   const [editedContent, setEditedContent] = useState();
   const router = useRouter();
-
-  // const Editor = dynamic<EditorProps>(
-  //   () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
-  //   { ssr: false }
-  // );
 
   useEffect(() => {
     axios.get("/api/ad", { params: { id: args.params.id } }).then((res) => {

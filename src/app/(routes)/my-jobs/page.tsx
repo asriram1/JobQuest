@@ -20,7 +20,7 @@ import JobRow from "@/app/_components/JobRow";
 import { Ad } from "@/app/_models/Ad";
 import { stateContext } from "@/app/_components/AppContext";
 
-export default function myJobs() {
+export default function MyJobs() {
   const [apps, setApps] = useState<Application[] | null>([]);
   const [favorites, setFavorites] = useState<Favorite[] | null>([]);
   const [sort, setSort] = useState<string | null>(null);
@@ -173,6 +173,7 @@ export default function myJobs() {
                 {apps &&
                   apps.map((app) => (
                     <AppliedRow
+                      key={app._id}
                       job={app.ad}
                       appliedDate={app.createdAt}
                       document={app.document}
@@ -217,6 +218,7 @@ export default function myJobs() {
                 {favorites &&
                   favorites.map((favorite) => (
                     <JobRow
+                      key={favorite._id}
                       job={favorite.ad}
                       showHeart={true}
                       userId={userId}
@@ -268,6 +270,7 @@ export default function myJobs() {
                 {postedDocs &&
                   postedDocs.map((doc) => (
                     <JobRow
+                      key={doc}
                       job={doc}
                       showHeart={false}
                       userId={userId}
