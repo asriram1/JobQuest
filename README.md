@@ -7,7 +7,6 @@ This is app is deployed at - https://anirudh-sriram-job-quest.vercel.app/
 ```
 email: anirudhsriramjobquery@gmail.com
 password: Testingaccount123
-
 ```
 
 
