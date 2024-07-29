@@ -1,3 +1,16 @@
+## Testing
+
+This is app is deployed at - https://anirudh-sriram-job-quest.vercel.app/
+
+
+
+```
+email: anirudhsriramjobquery@gmail.com
+password: Testingaccount123
+
+```
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
