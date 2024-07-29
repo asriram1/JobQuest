@@ -1,3 +1,4 @@
+"use server";
 import { Ad, AdModel } from "@/app/_models/Ad";
 import mongoose, { FilterQuery } from "mongoose";
 import moment from "moment";
@@ -100,10 +101,48 @@ export async function PUT(req: Request) {
   return Response.json(AdDoc);
 }
 
+// export async function getUserPosted(userId) {
+//   mongoose.connect(process.env.MONGODB_URI as string);
+
+//   console.log(userId);
+
+//   const adDocs = await AdModel.find({ userId: userId });
+
+//   console.log(adDocs);
+
+//   // console.log(adDocs);
+
+//   if (adDocs.length != 0) {
+//     return Response.json(adDocs);
+//   } else {
+//     return false;
+//   }
+// }
+
+export async function DELETE(req: Request) {
+  mongoose.connect(process.env.MONGODB_URI as string);
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id");
+  const result = await AdModel.findByIdAndDelete(id);
+  return Response.json(true);
+}
+
 export async function GET(req: Request) {
   mongoose.connect(process.env.MONGODB_URI as string);
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
+  const userId = url.searchParams.get("userId");
+  if (userId) {
+    const filter: FilterQuery<Ad> = {};
+    const sort = url.searchParams.get("sort") || null;
+
+    if (sort == "latest") {
+      const adDocs = await AdModel.find({ userId: userId }).sort("-createdAt");
+      return Response.json(adDocs);
+    }
+    const adDocs = await AdModel.find({ userId: userId }).sort("createdAt");
+    return Response.json(adDocs);
+  }
   if (id) {
     const adDoc = await AdModel.findById(id);
     return Response.json(adDoc);
@@ -179,7 +218,7 @@ export async function GET(req: Request) {
               .format(),
           };
         }
-        if (postedDate == "15") {
+        if (postedDate == "30") {
           filter.createdAt = {
             $lt: moment()
               .subtract(60 * 24 * 14, "minutes")
@@ -188,14 +227,7 @@ export async function GET(req: Request) {
           };
         }
       }
-      // filter.createdAt = {
-      //   $gt: moment().subtract(60, "minutes").utc().format(),
-      // };
 
-      // const category = url.searchParams.get("category") || null;
-      // const min_price = url.searchParams.get("min") || null;
-      // const max_price = url.searchParams.get("max") || null;
-      // const email = url.searchParams.get("email") || null;
       console.log(filter);
       const numPages = await AdModel.countDocuments(filter);
       console.log(numPages);
@@ -292,18 +324,7 @@ export async function GET(req: Request) {
           };
         }
       }
-      const newDoc = AdModel.aggregate([
-        {
-          $addFields: {
-            daysCount: {
-              $round: {
-                $divide: [{ $subtract: [new Date(), "$createdAt"] }, 86400000],
-              },
-            },
-          },
-        },
-      ]);
-      console.log(newDoc);
+
       const adDoc2 = await AdModel.find()
         .limit(5 * (Number(page) - 1))
         .sort("-createdAt");

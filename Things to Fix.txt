@@ -17,6 +17,18 @@
 
 15. Make all useeffects into one. Just ensure to clear searchparmas if newrefresh. 
 
+16. Make sure when log in redirect to current page.
+
+
+
+17. Header - make a dropdown for smaller screen size.
+
+18. in /listing page render job row like buttons & use useffect in job row for getting favorited.
+
+
+
+
+
 
 
 

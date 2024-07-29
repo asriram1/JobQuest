@@ -11,7 +11,7 @@ import {
   Theme,
 } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import {
   GetCountries,
@@ -35,6 +35,11 @@ import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import getModelCount from "@/app/_libs/getModelCount";
 import { useDebouncedCallback } from "use-debounce";
 import { Router } from "next/router";
+import { getSessionUser } from "../authentication/page";
+import { stateContext } from "@/app/_components/AppContext";
+import { getFavorited } from "@/app/api/favorite/route";
+import myJobs from "../my-jobs/page";
+import { Favorite } from "@/app/_models/Favorite";
 
 export default function AllListing() {
   const searchParams = useSearchParams();
@@ -69,6 +74,8 @@ export default function AllListing() {
   const [page, setPage] = useState<string>("1");
   const [lastCreatedAt, setLastCreatedAt] = useState(null);
   const [pageArr, setPageArr] = useState<any>([]);
+  const [jobArr, setJobArr] = useState<any>([]);
+  const [jobIds, setJobsIds] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [numPages, setNumPages] = useState<number>(1);
   const [newRefresh, setNewRefresh] = useState<boolean>(false);
@@ -82,6 +89,7 @@ export default function AllListing() {
   const [countries, setCountries] = useState<Prop[]>([]);
   const [states, setStates] = useState<Prop[]>([]);
   const [postedDate, setPostedDate] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [tempTitle, setTempTitle] = useState<string | null>(
     params.get("title") || null
@@ -100,10 +108,13 @@ export default function AllListing() {
 
   const [clicked, setClicked] = useState<string | undefined | null>("1");
 
+  const [userFavorites, setUserFavorites] = useState<Favorite[]>([]);
+
   const ls = typeof window !== "undefined" ? window.localStorage : null;
 
   const pathname = usePathname();
   const { replace } = useRouter();
+  const { gettingUser } = useContext(stateContext);
 
   function calcSalary(start, end) {
     const starting = (start / 100) * 500;
@@ -159,17 +170,200 @@ export default function AllListing() {
     let url = `/api/ad?${params.toString()}`;
 
     setLoading(true);
+    const userId = gettingUser();
 
     axios.get(url, { params: { lastCreatedAt: null } }).then((jobs) => {
       setJobs(jobs.data.adDoc);
       setLastCreatedAt(jobs.data.lastCreatedAt);
+
+      const userId = gettingUser();
+
+      jobArr.length = 0;
+      jobIds.length = 0;
+      if (userId) {
+        axios
+          .get("/api/favorite", { params: { userId: userId } })
+          .then((favorites) => {
+            if (favorites.data.length > 0) {
+              console.log(favorites);
+              let favoritesData = favorites.data;
+              for (let i = 0; i < jobs.data.adDoc.length; i++) {
+                for (let j = 0; j < favoritesData?.length; j++) {
+                  console.log(favoritesData[j], jobs.data.adDoc[i]);
+                  if (
+                    favoritesData[j]._id == jobs.data.adDoc[i]._id &&
+                    !jobIds.includes(jobs.data.adDoc[i]._id)
+                  ) {
+                    jobIds.push(jobs.data.adDoc[i]._id);
+                    jobArr.push(
+                      <div>
+                        <JobRow
+                          job={jobs.data.adDoc[i]}
+                          userId={userId}
+                          showHeart={true}
+                          posted={false}
+                          heartClickVal={true}
+                        />
+                      </div>
+                    );
+                  } else if (!jobIds.includes(jobs.data.adDoc[i]._id)) {
+                    jobIds.push(jobs.data.adDoc[i]._id);
+                    jobArr.push(
+                      <div>
+                        <JobRow
+                          job={jobs.data.adDoc[i]}
+                          userId={userId}
+                          showHeart={true}
+                          posted={userId == jobs.data.adDoc[i].userId}
+                          heartClickVal={false}
+                        />
+                      </div>
+                    );
+                  }
+                }
+              }
+              setJobsIds(jobIds);
+              setJobArr(jobArr);
+              setLoading(false);
+            } else {
+              for (let i = 0; i < jobs.data.adDoc.length; i++) {
+                jobArr.push(
+                  <div>
+                    <JobRow
+                      job={jobs.data.adDoc[i]}
+                      userId={userId}
+                      showHeart={true}
+                      posted={userId == jobs.data.adDoc[i].userId}
+                      heartClickVal={false}
+                    />
+                  </div>
+                );
+              }
+              setJobArr(jobArr);
+              setLoading(false);
+            }
+          });
+      } else {
+        for (let i = 0; i < jobs.data.adDoc.length; i++) {
+          jobArr.push(
+            <div>
+              <JobRow
+                job={jobs.data.adDoc[i]}
+                userId={null}
+                showHeart={false}
+                posted={false}
+                heartClickVal={false}
+              />
+            </div>
+          );
+        }
+        console.log(jobArr);
+
+        setJobArr(jobArr);
+      }
+
       if (page == "1") {
         setNumPages(jobs.data.numPages);
         getButtons(jobs.data.numPages);
       }
-      setLoading(false);
+      // setLoading(false);
     });
   }, [page]);
+
+  useEffect(() => {
+    const userId = gettingUser();
+    setLoading(true);
+    jobArr.length = 0;
+    jobIds.length = 0;
+    if (jobs) {
+      if (userId) {
+        axios
+          .get("/api/favorite", { params: { userId: userId } })
+          .then((favorites) => {
+            if (favorites.data.length > 0) {
+              console.log(favorites);
+              let favoritesData = favorites.data;
+              for (let i = 0; i < jobs.length; i++) {
+                for (let j = 0; j < favoritesData?.length; j++) {
+                  console.log(favoritesData[j], jobs[i]);
+                  if (
+                    favoritesData[j]._id == jobs[i]._id &&
+                    !jobIds.includes(jobs[i]._id)
+                  ) {
+                    jobIds.push(jobs[i]._id);
+                    jobArr.push(
+                      <div>
+                        <JobRow
+                          job={jobs[i]}
+                          userId={userId}
+                          showHeart={true}
+                          posted={false}
+                          heartClickVal={true}
+                        />
+                      </div>
+                    );
+                  } else if (!jobIds.includes(jobs[i]._id)) {
+                    jobIds.push(jobs[i]._id);
+                    jobArr.push(
+                      <div>
+                        <JobRow
+                          job={jobs[i]}
+                          userId={userId}
+                          showHeart={true}
+                          posted={userId == jobs[i].userId}
+                          heartClickVal={false}
+                        />
+                      </div>
+                    );
+                  }
+                }
+              }
+              setJobsIds(jobIds);
+              setJobArr(jobArr);
+              setLoading(false);
+            } else {
+              for (let i = 0; i < jobs.length; i++) {
+                jobArr.push(
+                  <div>
+                    <JobRow
+                      job={jobs[i]}
+                      userId={userId}
+                      showHeart={true}
+                      posted={userId == jobs[i].userId}
+                      heartClickVal={false}
+                    />
+                  </div>
+                );
+              }
+
+              setJobArr(jobArr);
+              setLoading(false);
+            }
+          });
+      } else {
+        for (let i = 0; i < jobs.length; i++) {
+          jobArr.push(
+            <div>
+              <JobRow
+                job={jobs[i]}
+                userId={null}
+                showHeart={false}
+                posted={false}
+                heartClickVal={false}
+              />
+            </div>
+          );
+        }
+        console.log(jobArr);
+
+        setJobArr(jobArr);
+      }
+    } else {
+      setLoading(false);
+      setJobArr([]);
+      setJobsIds([]);
+    }
+  }, [jobs]);
 
   useEffect(() => {
     GetCountries().then((result) => {
@@ -373,6 +567,46 @@ export default function AllListing() {
     setTitle("");
   }
 
+  async function getFavorite(userId, jobs) {
+    jobArr.length = 0;
+    for (let i = 0; i < 5; i++) {
+      getFavorited(userId, jobs.data.adDoc[i]._id).then((heart) => {
+        console.log(jobs.data.adDoc[i]);
+        console.log(heart);
+        // console.log(heart);
+        // setAlreadyClicked(true);
+        // setHeartClick(heart);
+        if (userId == jobs.data.adDoc[i].userId) {
+          console.log("both users are same.");
+          jobArr.push(
+            <div>
+              <JobRow
+                job={jobs.data.adDoc[i]}
+                userId={userId}
+                showHeart={true}
+                posted={true}
+                heartClickVal={heart}
+              />
+            </div>
+          );
+        } else {
+          console.log("both users are not same.");
+          jobArr.push(
+            <div>
+              <JobRow
+                job={jobs.data.adDoc[i]}
+                userId={userId}
+                showHeart={true}
+                posted={false}
+                heartClickVal={heart}
+              />
+            </div>
+          );
+        }
+      });
+    }
+  }
+
   function getButtons(numPages) {
     const buttonCount: number = Math.ceil(numPages / 5);
     pageArr.length = 0;
@@ -550,7 +784,7 @@ export default function AllListing() {
                       ...provided,
                       color: "#a0aec0",
                       fontSize: "14px",
-                      paddingLeft: "3px",
+                      // paddingLeft: "3px",
                     }),
                   }}
                 />
@@ -849,8 +1083,10 @@ export default function AllListing() {
               )}
               {loading && <Spinner />}
               {!jobs && <div>No Jobs Found.</div>}
+              {console.log(jobArr[0])}
+              {jobArr && <div>{jobArr}</div>}
 
-              {jobs && jobs.map((job) => <JobRow job={job} />)}
+              {/* {jobs && jobs.map((job) => <JobRow job={job} />)} */}
             </div>
             <div className="mb-3 flex gap-2 mx-auto mt-5 ">{pageArr}</div>
           </div>

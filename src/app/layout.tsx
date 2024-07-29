@@ -4,6 +4,7 @@ import "./globals.css";
 import Link from "next/link";
 import Header from "./_components/Header";
 import axios from "axios";
+import { AppProvider } from "./_components/AppContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,13 +21,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="container mx-auto py-4 px-6">
-          <Header />
-          {children}
-          <footer className="text-center text-gray-400 mt-4">
-            &copy; JobQuest 2024
-          </footer>
-        </main>
+        <AppProvider>
+          <main className="container mx-auto py-4 px-6">
+            <Header />
+            {children}
+            <footer className="text-center text-gray-400 mt-4">
+              &copy; JobQuest 2024
+            </footer>
+          </main>
+        </AppProvider>
       </body>
     </html>
   );

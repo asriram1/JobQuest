@@ -30,7 +30,8 @@ import {
   faPhone,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import { getSessionUser } from "@/app/_components/Header";
+
+// import { getSessionUser } from "@/app/_components/Header";
 import { RadioGroup, TextField, TextArea } from "@radix-ui/themes";
 import getCompanies from "@/app/_libs/companies";
 
@@ -52,6 +53,7 @@ import { useRouter } from "next/navigation";
 
 import dynamic from "next/dynamic";
 import { EditorProps } from "react-draft-wysiwyg";
+import { getSessionUser } from "@/app/(routes)/authentication/page";
 
 export default function EditListingIdPage(args: Props) {
   const companies = getCompanies();
@@ -95,10 +97,10 @@ export default function EditListingIdPage(args: Props) {
   const [editedContent, setEditedContent] = useState();
   const router = useRouter();
 
-  const Editor = dynamic<EditorProps>(
-    () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
-    { ssr: false }
-  );
+  // const Editor = dynamic<EditorProps>(
+  //   () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
+  //   { ssr: false }
+  // );
 
   useEffect(() => {
     axios.get("/api/ad", { params: { id: args.params.id } }).then((res) => {
@@ -325,7 +327,9 @@ export default function EditListingIdPage(args: Props) {
 
                       setShowSaveChangesButton(true);
                     }}
-                    variant="classic"
+                    color="gray"
+                    variant="solid"
+                    highContrast
                   >
                     Edit
                   </Button>
@@ -352,7 +356,9 @@ export default function EditListingIdPage(args: Props) {
 
                         setShowSaveChangesButton(true);
                       }}
-                      variant="classic"
+                      color="gray"
+                      variant="solid"
+                      highContrast
                     >
                       Edit
                     </Button>
@@ -615,8 +621,8 @@ export default function EditListingIdPage(args: Props) {
             Apply by uploading resume
           </button> */}
           {showSaveChangesButton && (
-            <div className="flex flex-col gap-1 w-full">
-              <Button onClick={() => handleSaveChanges()} variant="classic">
+            <div className="flex gap-1 w-full">
+              {/* <Button onClick={() => handleSaveChanges()} variant="classic">
                 Save Changes
               </Button>
               <Button
@@ -625,20 +631,20 @@ export default function EditListingIdPage(args: Props) {
                 variant="classic"
               >
                 Cancel
-              </Button>
-              {/* <button
-                className="bg-gray-400 text-white px-4 py-2 w-full rounded-md mx-auto"
+              </Button> */}
+              <button
+                className="bg-blue-600 text-white px-4 py-2 w-1/2 rounded-md mx-auto"
                 onClick={() => handleSaveChanges()}
               >
                 Save Changes
-              </button> */}
-              {/* <button
+              </button>
+              <button
                 type="submit"
-                className="bg-red-400 text-white px-4 py-2 w-full rounded-md mx-auto"
+                className="bg-gray-200 text-black px-4 py-2 w-1/2 rounded-md mx-auto"
                 onClick={() => handleCancelChanges()}
               >
                 Cancel
-              </button> */}
+              </button>
             </div>
           )}
         </div>

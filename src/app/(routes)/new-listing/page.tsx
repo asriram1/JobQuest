@@ -2,7 +2,7 @@
 import React, { use, useEffect, useRef, useState } from "react";
 import getCompanies from "@/app/_libs/companies";
 import Select from "react-select";
-import Checkbox from "@/app/_components/Checkbox";
+
 import "@radix-ui/themes/styles.css";
 import {
   CitySelect,
@@ -40,12 +40,13 @@ type Prop = {
 };
 import axios from "axios";
 import { redirect } from "next/navigation";
-import { getSessionUser } from "@/app/_components/Header";
+// import { getSessionUser } from "@/app/_components/Header";
 
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToHtml from "draftjs-to-html";
 import { useRouter } from "next/navigation";
+import { getSessionUser } from "../authentication/page";
 
 export default function NewListing() {
   const companies = getCompanies();
@@ -68,6 +69,8 @@ export default function NewListing() {
   const [extraCompany, setExtraCompany] = useState<boolean>(false);
   const [companyIcon, setCompanyIcon] = useState<string>("");
   const [recruiterImage, setRecruiterImage] = useState<string>("");
+
+  const [loading, setLoading] = useState<boolean>(false);
   const [content, setContent] = useState();
   const router = useRouter();
 
@@ -86,6 +89,7 @@ export default function NewListing() {
 
   async function handleSubmit(ev) {
     ev.preventDefault();
+
     getSessionUser().then((user) => {
       console.log(user);
       const data = {
@@ -109,6 +113,7 @@ export default function NewListing() {
       console.log(data);
       axios.post("/api/ad", data).then((data: any) => {
         console.log(data);
+
         router.push("/listing/" + data.data._id);
       });
       // return data;
@@ -360,9 +365,12 @@ export default function NewListing() {
         </div>
         <button
           type="submit"
+          onClick={() => {
+            setLoading(true);
+          }}
           className="bg-blue-600 text-white px-4 py-2 w-full rounded-md mx-auto"
         >
-          Save
+          {loading ? "Posting..." : "Save"}
         </button>
       </Theme>
     </form>

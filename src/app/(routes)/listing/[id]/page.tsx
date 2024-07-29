@@ -1,18 +1,23 @@
 "use client";
 import {
+  AlertDialog,
   Avatar,
   Button,
+  Callout,
+  DropdownMenu,
   Heading,
   Link,
   ScrollArea,
   Theme,
+  Flex,
 } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import draftToHtml from "draftjs-to-html";
 import DOMPurify from "isomorphic-dompurify";
-import { getSessionUser } from "@/app/_components/Header";
+// import { getSessionUser } from "@/app/_components/Header";
+
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Apply from "@/app/_components/Apply";
@@ -23,8 +28,12 @@ import {
   getUser,
   signOut,
 } from "@workos-inc/authkit-nextjs";
-import loginLink from "../../authentication/page";
+import { getSessionUser, loginLink } from "../../authentication/page";
 import { usePathname } from "next/navigation";
+import Header from "@/app/_components/Header";
+import { Ad } from "@/app/_models/Ad";
+import { getApplied } from "@/app/api/jobApp/route";
+import { stateContext } from "@/app/_components/AppContext";
 
 type Props = {
   params: {
@@ -50,19 +59,20 @@ export default function ListingIdPage(args: Props) {
   const [extraCompany, setExtraCompany] = useState<boolean>(false);
   const [companyIcon, setCompanyIcon] = useState<string>("");
   const [recruiterImage, setRecruiterImage] = useState<string>("");
-  const [loggedUserId, setLoggedUserId] = useState<string | null>(null);
+  const [loggedUserId, setLoggedUserId] = useState<string | undefined>();
   const [userId, setUserId] = useState<string>("");
   const [editor, setEditor] = useState<boolean>(false);
+  const [job, setJob] = useState<Ad>();
+  const [alreadyApplied, setAlreadyApplied] = useState<boolean>(false);
   const router = useRouter();
-
-  // const [pathname, setPathname] = useState<string>("");
-  const pathname = usePathname();
 
   useEffect(() => {
     axios.get("/api/ad", { params: { id: args.params.id } }).then((res) => {
       console.log(res);
+
       const data = res.data;
       console.log(data);
+      setJob(data);
       setCountry(data.country);
       setState(data.state);
       setCity(data.city);
@@ -85,9 +95,13 @@ export default function ListingIdPage(args: Props) {
         console.log(user?.id);
         console.log(data.userId);
         setLoggedUserId(user?.id);
-        if (user?.id != undefined && data.userId == loggedUserId) {
+        if (data.userId == user?.id) {
           setEditor(true);
         }
+        getApplied(user?.id, data._id).then((result) => {
+          console.log(result);
+          setAlreadyApplied(result);
+        });
       });
     });
   }, []);
@@ -102,11 +116,14 @@ export default function ListingIdPage(args: Props) {
     router.push("/listing/edit/" + args.params.id);
   }
 
-  async function signingIn() {
-    const signInUrl = await loginLink();
-
-    return signInUrl;
+  async function deletePost() {
+    const id = args.params.id;
+    axios.delete("/api/ad", { params: { id: id } }).then((result) => {
+      alert("Deleted Successfully");
+      router.push("/listing");
+    });
   }
+
   return (
     <Theme>
       <div className="flex flex-col gap-10 mt-10">
@@ -209,73 +226,115 @@ export default function ListingIdPage(args: Props) {
           </div>
         </div>
 
-        {/* {loggedUserId ? (
-          <div>
-            <Apply />
-          </div>
-        ) : (
-          <div>
-            <button className="bg-blue-600 text-white px-4 py-2 w-full rounded-md mx-auto">
-              Login to Apply
-            </button>
-          </div>
-        )} */}
         <div className="flex w-full">
-          {!editor ? (
-            <>
-              {" "}
-              {loggedUserId ? (
-                <div className="w-full">
-                  <Apply />
-                </div>
-              ) : (
-                <div className="w-full">
-                  <button
-                    onClick={() => {
-                      signingIn().then((result) => {
-                        console.log(result);
-
-                        console.log(pathname);
-                        console.log(
-                          result.replace(
-                            /redirect_uri.*response_type=/,
-                            "redirect_uri=http://localhost:3000" +
-                              pathname +
-                              "&response_type="
-                          )
-                        );
-
-                        router.push(
-                          "https://api.workos.com/user_management/authorize?client_id=client_01J2PP9HHD4B9HFJR4ZF82DRKX&provider=authkit&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Flisting%2F669674c4576f4b0f5f354c6c&response_type=code&screen_hint=sign-in"
-                        );
-                      });
-                    }}
-                    className="bg-blue-600 text-white px-4 py-2 w-full rounded-md mx-auto"
+          {alreadyApplied ? (
+            <div className="mx-auto">
+              <Callout.Root>
+                <Callout.Icon>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    className="size-6"
                   >
-                    Login to Apply
-                  </button>
-                </div>
-              )}
-            </>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                    />
+                  </svg>
+                </Callout.Icon>
+                <Callout.Text>
+                  You have already applied for this position.
+                </Callout.Text>
+              </Callout.Root>
+            </div>
           ) : (
-            // <Apply /> https://api.workos.com/user_management/authorize?client_id=client_01J2PP9HHD4B9HFJR4ZF82DRKX&provider=authkit&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fcallback&response_type=code&screen_hint=sign-in
-            // https://api.workos.com/user_management/authorize?client_id=client_01J2PP9HHD4B9HFJR4ZF82DRKX&provider=authkit&redirect_uri=http://localhost:3000/listing/669674c4576f4b0f5f354c6c&response_type=code&screen_hint=sign-in
-            <>
-              <div className="flex gap-2 w-full">
-                <button
-                  onClick={() => {
-                    handleEditClick();
-                    // router.push("/listing/edit/" + args.params.id);
-                  }}
-                  className="bg-gray-200 text-black px-4 py-2 w-1/2 rounded-md mx-auto"
-                >
-                  Edit Post
-                </button>
-                <button className="bg-red-400 text-white px-4 py-2 w-1/2 rounded-md mx-auto">
-                  Delete Post
-                </button>
-              </div>
-            </>
+            <div className="flex w-full">
+              {!editor ? (
+                <>
+                  {" "}
+                  {loggedUserId ? (
+                    <div className="w-full">
+                      <Apply job={job} userId={loggedUserId} />
+                    </div>
+                  ) : (
+                    <div className="mx-auto">
+                      <Callout.Root>
+                        <Callout.Icon>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            className="size-6"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                            />
+                          </svg>
+                        </Callout.Icon>
+                        <Callout.Text>
+                          You will need to login to apply for this job.
+                        </Callout.Text>
+                      </Callout.Root>
+                    </div>
+                  )}
+                </>
+              ) : (
+                // <Apply /> https://api.workos.com/user_management/authorize?client_id=client_01J2PP9HHD4B9HFJR4ZF82DRKX&provider=authkit&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fcallback&response_type=code&screen_hint=sign-in
+                // https://api.workos.com/user_management/authorize?client_id=client_01J2PP9HHD4B9HFJR4ZF82DRKX&provider=authkit&redirect_uri=http://localhost:3000/listing/669674c4576f4b0f5f354c6c&response_type=code&screen_hint=sign-in
+                <>
+                  <div className="flex gap-2 w-full">
+                    <button
+                      onClick={() => {
+                        handleEditClick();
+                      }}
+                      className="bg-gray-200 text-black px-4 py-2 w-1/2 rounded-md mx-auto"
+                    >
+                      Edit Post
+                    </button>
+                    <AlertDialog.Root>
+                      <AlertDialog.Trigger>
+                        <button className="bg-red-400 text-white px-4 py-2 w-1/2 rounded-md mx-auto">
+                          Delete Post
+                        </button>
+                      </AlertDialog.Trigger>
+                      <AlertDialog.Content maxWidth="450px">
+                        <AlertDialog.Title>Delete Post</AlertDialog.Title>
+                        <AlertDialog.Description size="2">
+                          Are you sure? This job post will no longer be
+                          accessible to any future applicants.
+                        </AlertDialog.Description>
+                        <Flex gap="3" mt="4" justify="end">
+                          <AlertDialog.Cancel>
+                            <Button variant="soft" color="gray">
+                              Cancel
+                            </Button>
+                          </AlertDialog.Cancel>
+                          <AlertDialog.Action>
+                            <Button
+                              onClick={() => {
+                                deletePost();
+                              }}
+                              variant="solid"
+                              color="red"
+                            >
+                              Delete
+                            </Button>
+                          </AlertDialog.Action>
+                        </Flex>
+                      </AlertDialog.Content>
+                    </AlertDialog.Root>
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </div>
       </div>

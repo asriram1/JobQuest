@@ -72,16 +72,20 @@ export default function PhotoUpload({ label, setImage }: Props) {
             <div>
               {file ? (
                 <div>
-                  <CldImage
-                    src={link} // Use this sample image or upload your own via the Media Explorer
-                    width="128" // Transform the image: auto-crop to square aspect_ratio
-                    height="128"
-                    alt="uploaded photo"
-                    crop={{
-                      type: "auto",
-                      source: true,
-                    }}
-                  />
+                  {label == "Job Recruiter" ? (
+                    <CldImage
+                      src={link} // Use this sample image or upload your own via the Media Explorer
+                      width="128" // Transform the image: auto-crop to square aspect_ratio
+                      height="128"
+                      alt="uploaded photo"
+                      crop={{
+                        type: "auto",
+                        source: true,
+                      }}
+                    />
+                  ) : (
+                    <img src={link} alt={"image"} className="size-32" />
+                  )}
                 </div>
               ) : (
                 <FontAwesomeIcon

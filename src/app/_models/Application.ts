@@ -11,7 +11,6 @@ export type Application = {
 
 const appSchema = new Schema<Application>(
   {
-    _id: String,
     ad: Object,
     userId: String,
     document: String,

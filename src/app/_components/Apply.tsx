@@ -5,13 +5,14 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
-export default function Apply() {
+export default function Apply({ job, userId }) {
   const [showConfirm, setShowConfirm] = useState<Boolean>(false);
   const [showSuccess, setShowSuccess] = useState<Boolean>(false);
   const [confirmDelete, setConfirmDelete] = useState<Boolean>(false);
   const [terms, setTerms] = useState<Boolean>(true);
   const [file, setFile] = useState<string>("");
   const router = useRouter();
+  console.log(job, userId);
 
   //   useEffect(() => {
   //     if (confirmDelete) {
@@ -67,43 +68,10 @@ export default function Apply() {
     const link = "https://" + bucket + ".s3.amazonaws.com/" + key;
     setFile(link);
 
-    // if (!error) {
-    //     toast.success("Upload Complete");
-    //     setIsUploading(false);
-    //   }
+    const postData = { job: job, userId: userId, document: link };
 
-    // // setLocalImages([]);
-    // // setImages([]);
-    // for (var x = 0; x < files.length; x++) {
-    //   // data.append("files[]", files[x]);
-
-    //   const presignedUrl = await getPresignedUrl();
-    //   const uploadResponse = await axios.put(presignedUrl, files[x], {
-    //     headers: {
-    //       "Content-Type": "image/jpeg",
-    //     },
-    //   });
-
-    //   if (uploadResponse.status !== 200) {
-    //     toast.error("Upload Error");
-    //     setIsUploading(false);
-    //     setError(true);
-    //     break;
-    //   }
-    //   // setUploadResponse(uploadResponse);
-    //   console.log(uploadResponse);
-    //   const link = "https://" + bucket + ".s3.amazonaws.com/" + key;
-    //   setLocalImages((prevItems) => [...prevItems, link]);
-    // }
-    // // const response = await fetch("/api/upload", {
-    // //   method: "POST",
-    // //   body: data,
-    // // });
-    // // const links = await response.json();
-
-    // // setImages(links);
-    // // setLocalImages(links);
-    // // console.log(links);
+    const uploaded = await axios.post("/api/jobApp", postData);
+    console.log(uploaded);
   }
 
   if (showConfirm) {
@@ -131,7 +99,7 @@ export default function Apply() {
                   viewBox="0 0 24 24"
                   stroke-width="1.5"
                   stroke="currentColor"
-                  class="size-6"
+                  className="size-6"
                 >
                   <path
                     stroke-linecap="round"
@@ -147,14 +115,6 @@ export default function Apply() {
             </div>
 
             <div className="flex gap-2 mt-3 items-center justify-center">
-              {/* <button
-                type="button"
-                className="bg-gray-400 px-4 py-2 rounded-xl text-white text-xs flex gap-2 items-center"
-                onClick={() => setShowConfirm(false)}
-              >
-                <FontAwesomeIcon className="size-2" icon={faFile} />
-                Upload Resume{" "}
-              </button> */}
               <div className="flex flex-col gap-5">
                 <div className="flex items-center gap-2">
                   <Checkbox
@@ -185,7 +145,7 @@ export default function Apply() {
                       viewBox="0 0 24 24"
                       strokeWidth="1.5"
                       stroke="currentColor"
-                      class="w-8 h-8"
+                      className="w-8 h-8"
                     >
                       <path
                         strokeLinecap="round"
@@ -193,22 +153,15 @@ export default function Apply() {
                         d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"
                       />
                     </svg>
-                    Upload Resume
+                    <div className="flex flex-col">
+                      <div>Upload Resume</div>
+                      <div className="text-xs text-gray-400 text-center">
+                        (PDF only)
+                      </div>
+                    </div>
                   </label>
                 )}
               </div>
-
-              {/* <button
-                onClick={() => {
-                  setShowConfirm(false);
-                  setConfirmDelete(true);
-                }}
-                type="button"
-                className="bg-red-400 px-4 py-2 rounded-xl text-white text-xs flex gap-2 items-center"
-              >
-                <FontAwesomeIcon className="size-2" icon={faTrash} />
-                Yes,&nbsp;delete
-              </button> */}
             </div>
           </div>
         </div>
@@ -229,7 +182,7 @@ export default function Apply() {
             onClick={(ev) => ev.stopPropagation()}
             className=" bg-white p-6 rounded-lg"
           >
-            <div className=" flex justify-end mb-1">
+            {/* <div className=" flex justify-end mb-1">
               <button
                 onClick={() => {
                   setShowSuccess(false);
@@ -241,7 +194,7 @@ export default function Apply() {
                   viewBox="0 0 24 24"
                   stroke-width="1.5"
                   stroke="currentColor"
-                  class="size-6"
+                  className="size-6"
                 >
                   <path
                     stroke-linecap="round"
@@ -250,13 +203,18 @@ export default function Apply() {
                   />
                 </svg>
               </button>
-            </div>
+            </div> */}
             <div className="flex flex-col gap-2 items-center ">
               <div className="flex justify-center">
                 <Heading> Application Submitted</Heading>
               </div>
               <img src={"/yes.png"} className="size-32" alt="success" />
-              <button className="bg-blue-600 text-white px-4 py-2 w-full rounded-md mx-auto mt-3">
+              <button
+                onClick={() => {
+                  router.push("/my-jobs");
+                }}
+                className="bg-blue-600 text-white px-4 py-2 w-full rounded-md mx-auto mt-3"
+              >
                 View My Applications
               </button>
             </div>
@@ -273,13 +231,5 @@ export default function Apply() {
     >
       Apply Now
     </button>
-    //   <button
-    //     type="button"
-    //     className="bg-red-400 px-4 py-2 rounded-xl text-white text-xs flex gap-2 items-center"
-    //     onClick={() => setShowConfirm(true)}
-    //   >
-    //     <FontAwesomeIcon className="size-2" icon={faTrash} />
-    //     <span>{label}</span>
-    //   </button>
   );
 }

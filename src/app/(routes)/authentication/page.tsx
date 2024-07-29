@@ -7,10 +7,25 @@ import {
   signOut,
 } from "@workos-inc/authkit-nextjs";
 
-export default async function loginLink() {
+export async function loginLink() {
   const signInUrl = await getSignInUrl();
   return signInUrl;
-  //   return (
-  //     <div>page</div>
-  //   )
+}
+export async function getSessionUser() {
+  const { user } = await getUser();
+
+  return user;
+}
+
+export async function signUpLink() {
+  const signUpUrl = await getSignUpUrl();
+  return signUpUrl;
+}
+
+export async function logout() {
+  await signOut();
+}
+
+export default async function page() {
+  return "Not authorized to access this page.";
 }
