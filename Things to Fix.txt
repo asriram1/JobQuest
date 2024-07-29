@@ -23,7 +23,11 @@
 
 17. Header - make a dropdown for smaller screen size.
 
-18. in /listing page render job row like buttons & use useffect in job row for getting favorited.
+18. favorites red heart not showing, listing page. 
+
+
+
+
 
 
 

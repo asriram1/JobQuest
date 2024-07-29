@@ -184,47 +184,90 @@ export default function AllListing() {
         axios
           .get("/api/favorite", { params: { userId: userId } })
           .then((favorites) => {
+            console.log(favorites.data);
             if (favorites.data.length > 0) {
               console.log(favorites);
               let favoritesData = favorites.data;
+
+              let favoriteIds = [];
+
+              for (let j = 0; j < favoritesData?.length; j++) {
+                favoriteIds.push(favoritesData[j].ad._id);
+              }
+              console.log(favoriteIds);
+
               for (let i = 0; i < jobs.data.adDoc.length; i++) {
-                for (let j = 0; j < favoritesData?.length; j++) {
-                  console.log(favoritesData[j], jobs.data.adDoc[i]);
-                  if (
-                    favoritesData[j]._id == jobs.data.adDoc[i]._id &&
-                    !jobIds.includes(jobs.data.adDoc[i]._id)
-                  ) {
-                    jobIds.push(jobs.data.adDoc[i]._id);
-                    jobArr.push(
-                      <div>
-                        <JobRow
-                          job={jobs.data.adDoc[i]}
-                          userId={userId}
-                          showHeart={true}
-                          posted={false}
-                          heartClickVal={true}
-                        />
-                      </div>
-                    );
-                  } else if (!jobIds.includes(jobs.data.adDoc[i]._id)) {
-                    jobIds.push(jobs.data.adDoc[i]._id);
-                    jobArr.push(
-                      <div>
-                        <JobRow
-                          job={jobs.data.adDoc[i]}
-                          userId={userId}
-                          showHeart={true}
-                          posted={userId == jobs.data.adDoc[i].userId}
-                          heartClickVal={false}
-                        />
-                      </div>
-                    );
-                  }
+                if (favoriteIds.includes(jobs.data.adDoc[i]._id)) {
+                  jobArr.push(
+                    <div>
+                      <JobRow
+                        job={jobs.data.adDoc[i]}
+                        userId={userId}
+                        showHeart={true}
+                        posted={false}
+                        heartClickVal={true}
+                      />
+                    </div>
+                  );
+                } else {
+                  jobArr.push(
+                    <div>
+                      <JobRow
+                        job={jobs.data.adDoc[i]}
+                        userId={userId}
+                        showHeart={true}
+                        posted={userId == jobs.data.adDoc[i].userId}
+                        heartClickVal={false}
+                      />
+                    </div>
+                  );
                 }
               }
-              setJobsIds(jobIds);
               setJobArr(jobArr);
               setLoading(false);
+
+              // for (let i = 0; i < jobs.data.adDoc.length; i++) {
+              //   jobIds.length = 0;
+              //   for (let j = 0; j < favoritesData?.length; j++) {
+              //     console.log(favoritesData[j].ad._id, jobs.data.adDoc[i]._id);
+              //     console.log(jobIds, jobs.data.adDoc[i]._id);
+              //     if (
+              //       favoritesData[j].ad._id == jobs.data.adDoc[i]._id &&
+              //       !jobIds.includes(jobs.data.adDoc[i]._id)
+              //     ) {
+              //       console.log("there");
+              //       jobIds.push(jobs.data.adDoc[i]._id);
+              //       jobArr.push(
+              //         <div>
+              //           <JobRow
+              //             job={jobs.data.adDoc[i]}
+              //             userId={userId}
+              //             showHeart={true}
+              //             posted={false}
+              //             heartClickVal={true}
+              //           />
+              //         </div>
+              //       );
+              //     } else if (!jobIds.includes(jobs.data.adDoc[i]._id)) {
+              //       console.log("here");
+              //       jobIds.push(jobs.data.adDoc[i]._id);
+              //       jobArr.push(
+              //         <div>
+              //           <JobRow
+              //             job={jobs.data.adDoc[i]}
+              //             userId={userId}
+              //             showHeart={true}
+              //             posted={userId == jobs.data.adDoc[i].userId}
+              //             heartClickVal={false}
+              //           />
+              //         </div>
+              //       );
+              //     }
+              //   }
+              // }
+              // setJobsIds(jobIds);
+              // setJobArr(jobArr);
+              // setLoading(false);
             } else {
               for (let i = 0; i < jobs.data.adDoc.length; i++) {
                 jobArr.push(
@@ -283,44 +326,82 @@ export default function AllListing() {
             if (favorites.data.length > 0) {
               console.log(favorites);
               let favoritesData = favorites.data;
+
+              let favoriteIds = [];
+
+              for (let j = 0; j < favoritesData?.length; j++) {
+                favoriteIds.push(favoritesData[j].ad._id);
+              }
+              console.log(favoriteIds);
+
               for (let i = 0; i < jobs.length; i++) {
-                for (let j = 0; j < favoritesData?.length; j++) {
-                  console.log(favoritesData[j], jobs[i]);
-                  if (
-                    favoritesData[j]._id == jobs[i]._id &&
-                    !jobIds.includes(jobs[i]._id)
-                  ) {
-                    jobIds.push(jobs[i]._id);
-                    jobArr.push(
-                      <div>
-                        <JobRow
-                          job={jobs[i]}
-                          userId={userId}
-                          showHeart={true}
-                          posted={false}
-                          heartClickVal={true}
-                        />
-                      </div>
-                    );
-                  } else if (!jobIds.includes(jobs[i]._id)) {
-                    jobIds.push(jobs[i]._id);
-                    jobArr.push(
-                      <div>
-                        <JobRow
-                          job={jobs[i]}
-                          userId={userId}
-                          showHeart={true}
-                          posted={userId == jobs[i].userId}
-                          heartClickVal={false}
-                        />
-                      </div>
-                    );
-                  }
+                if (favoriteIds.includes(jobs[i]._id)) {
+                  jobArr.push(
+                    <div>
+                      <JobRow
+                        job={jobs[i]}
+                        userId={userId}
+                        showHeart={true}
+                        posted={false}
+                        heartClickVal={true}
+                      />
+                    </div>
+                  );
+                } else {
+                  jobArr.push(
+                    <div>
+                      <JobRow
+                        job={jobs[i]}
+                        userId={userId}
+                        showHeart={true}
+                        posted={userId == jobs[i].userId}
+                        heartClickVal={false}
+                      />
+                    </div>
+                  );
                 }
               }
-              setJobsIds(jobIds);
               setJobArr(jobArr);
               setLoading(false);
+
+              // for (let i = 0; i < jobs.length; i++) {
+              //   for (let j = 0; j < favoritesData?.length; j++) {
+              //     console.log(favoritesData[j], jobs[i]);
+              //     if (
+              //       favoritesData[j].ad._id == jobs[i]._id &&
+              //       !jobIds.includes(jobs[i]._id)
+              //     ) {
+              //       jobIds.push(jobs[i]._id);
+              //       jobArr.push(
+              //         <div>
+              //           <JobRow
+              //             job={jobs[i]}
+              //             userId={userId}
+              //             showHeart={true}
+              //             posted={false}
+              //             heartClickVal={true}
+              //           />
+              //         </div>
+              //       );
+              //     } else if (!jobIds.includes(jobs[i]._id)) {
+              //       jobIds.push(jobs[i]._id);
+              //       jobArr.push(
+              //         <div>
+              //           <JobRow
+              //             job={jobs[i]}
+              //             userId={userId}
+              //             showHeart={true}
+              //             posted={userId == jobs[i].userId}
+              //             heartClickVal={false}
+              //           />
+              //         </div>
+              //       );
+              //     }
+              //   }
+              // }
+              // setJobsIds(jobIds);
+              // setJobArr(jobArr);
+              // setLoading(false);
             } else {
               for (let i = 0; i < jobs.length; i++) {
                 jobArr.push(

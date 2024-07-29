@@ -32,44 +32,81 @@ export default function Jobs() {
         .then((favorites) => {
           if (favorites.data.length > 0) {
             let favoritesData = favorites.data;
+
+            let favoriteIds = [];
+
+            for (let j = 0; j < favoritesData?.length; j++) {
+              favoriteIds.push(favoritesData[j].ad._id);
+            }
+            console.log(favoriteIds);
+
             for (let i = 0; i < jobs.data.adDoc.length; i++) {
-              for (let j = 0; j < favoritesData?.length; j++) {
-                console.log(favoritesData[j], jobs.data.adDoc[i]);
-                if (
-                  favoritesData[j]._id == jobs.data.adDoc[i]._id &&
-                  !jobIds.includes(jobs.data.adDoc[i]._id)
-                ) {
-                  jobIds.push(jobs.data.adDoc[i]._id);
-                  jobArr.push(
-                    <div>
-                      <JobRow
-                        job={jobs.data.adDoc[i]}
-                        userId={userId}
-                        showHeart={true}
-                        posted={false}
-                        heartClickVal={true}
-                      />
-                    </div>
-                  );
-                } else if (!jobIds.includes(jobs.data.adDoc[i]._id)) {
-                  jobIds.push(jobs.data.adDoc[i]._id);
-                  jobArr.push(
-                    <div>
-                      <JobRow
-                        job={jobs.data.adDoc[i]}
-                        userId={userId}
-                        showHeart={true}
-                        posted={userId == jobs.data.adDoc[i].userId}
-                        heartClickVal={false}
-                      />
-                    </div>
-                  );
-                }
+              if (favoriteIds.includes(jobs.data.adDoc[i]._id)) {
+                jobArr.push(
+                  <div>
+                    <JobRow
+                      job={jobs.data.adDoc[i]}
+                      userId={userId}
+                      showHeart={true}
+                      posted={false}
+                      heartClickVal={true}
+                    />
+                  </div>
+                );
+              } else {
+                jobArr.push(
+                  <div>
+                    <JobRow
+                      job={jobs.data.adDoc[i]}
+                      userId={userId}
+                      showHeart={true}
+                      posted={userId == jobs.data.adDoc[i].userId}
+                      heartClickVal={false}
+                    />
+                  </div>
+                );
               }
             }
-            setJobsIds(jobIds);
             setJobArr(jobArr);
             setLoading(false);
+            // for (let i = 0; i < jobs.data.adDoc.length; i++) {
+            //   for (let j = 0; j < favoritesData?.length; j++) {
+            //     console.log(favoritesData[j], jobs.data.adDoc[i]);
+            //     if (
+            //       favoritesData[j]._id == jobs.data.adDoc[i]._id &&
+            //       !jobIds.includes(jobs.data.adDoc[i]._id)
+            //     ) {
+            //       jobIds.push(jobs.data.adDoc[i]._id);
+            //       jobArr.push(
+            //         <div>
+            //           <JobRow
+            //             job={jobs.data.adDoc[i]}
+            //             userId={userId}
+            //             showHeart={true}
+            //             posted={false}
+            //             heartClickVal={true}
+            //           />
+            //         </div>
+            //       );
+            //     } else if (!jobIds.includes(jobs.data.adDoc[i]._id)) {
+            //       jobIds.push(jobs.data.adDoc[i]._id);
+            //       jobArr.push(
+            //         <div>
+            //           <JobRow
+            //             job={jobs.data.adDoc[i]}
+            //             userId={userId}
+            //             showHeart={true}
+            //             posted={userId == jobs.data.adDoc[i].userId}
+            //             heartClickVal={false}
+            //           />
+            //         </div>
+            //       );
+            //     }
+            //   }
+            // }
+            // setJobsIds(jobIds);
+            // setJobArr(jobArr);
+            // setLoading(false);
           } else {
             for (let i = 0; i < jobs.data.adDoc.length; i++) {
               jobArr.push(
