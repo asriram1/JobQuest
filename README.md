@@ -1,6 +1,6 @@
 ## Testing
 
-This is app is deployed at - https://anirudh-sriram-job-quest.vercel.app/
+This is app is deployed at - https://job-quest-jobhunt.vercel.app/
 
 
 
